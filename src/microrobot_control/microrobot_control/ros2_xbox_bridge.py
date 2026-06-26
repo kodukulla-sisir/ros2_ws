@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
@@ -15,7 +14,7 @@ class Ros2XboxBridge(Node):
         
         try:
             self.arduino = serial.Serial(self.arduino_port, self.baud_rate, timeout=0.05)
-            time.sleep(2) # Wait for Arduino to reset
+            time.sleep(2) 
             self.get_logger().info(f"Successfully connected to Arduino on {self.arduino_port}")
         except Exception as e:
             self.get_logger().error(f"Failed to connect to Arduino: {e}")
@@ -26,22 +25,19 @@ class Ros2XboxBridge(Node):
         self.get_logger().info("Listening for joystick inputs...")
 
     def joy_callback(self, msg):
-        # 1. Grab your PS5 mapped numbers
+        #Controller data for left joystick and action button
         left_stick_y = msg.axes[1]  
         action_button = msg.buttons[0] 
         
-        # 2. Format the string exactly as the Arduino expects it
         command_str = f"{left_stick_y:.2f},{action_button}\n"
         
-        # 3. Only trigger if you are actually moving the stick or pressing the button
-        # (This prevents spamming the terminal with "0.00,0" a hundred times a second)
         if abs(left_stick_y) > 0.05 or action_button == 1:
             
             if self.arduino is not None:
-                # Hardware is connected! Send it over USB.
+                # Hardware is connected
                 self.arduino.write(command_str.encode('utf-8'))
             else:
-                # Hardware is missing! Print it to the screen instead.
+                # Hardware is missing
                 self.get_logger().info(f"DRY RUN - Would have sent: {command_str.strip()}")
 
 def main(args=None):
@@ -59,5 +55,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-    #source /opt/ros/foxy/setup.bash
-#ros2 run joy joy_node
+   
