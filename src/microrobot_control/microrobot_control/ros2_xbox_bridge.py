@@ -36,6 +36,10 @@ class Ros2XboxBridge(Node):
             if self.arduino is not None:
                 # Hardware is connected
                 self.arduino.write(command_str.encode('utf-8'))
+                while self.arduino.in_waiting:
+                    response = self.arduino.readline().decode('utf-8', errors='ignore').strip()
+                    if response:
+                        self.get_logger().info(f"Arduino response: {response}") # debug respnose
             else:
                 # Hardware is missing
                 self.get_logger().info(f"DRY RUN - Would have sent: {command_str.strip()}")
